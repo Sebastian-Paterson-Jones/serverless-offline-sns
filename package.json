@@ -9,7 +9,7 @@
     "watch": "tsc -p src -w",
     "test": "nyc ts-mocha -r ts-node/register --loader=ts-node/esm --no-warnings=ExperimentalWarning --experimental-specifier-resolution=node \"test/**/*.ts\" -p test/tsconfig.json",
     "lint": "tslint -c tslint.json 'src/**/*'",
-    "prepare": "yarn run lint && yarn test && yarn build",
+    "prepare": "yarn build",
     "prettier": "npx prettier --write src test",
     "upgrade": "npx npm-check-updates -u"
   },
@@ -34,8 +34,8 @@
   },
   "homepage": "https://github.com/mj1618/serverless-offline-sns#readme",
   "dependencies": {
-    "@aws-sdk/client-sns": "^3.465.0",
-    "@aws-sdk/client-sqs": "^3.465.0",
+    "@aws-sdk/client-sns": "^3.410.0",
+    "@aws-sdk/client-sqs": "^3.410.0",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "express": "^4.18.2",

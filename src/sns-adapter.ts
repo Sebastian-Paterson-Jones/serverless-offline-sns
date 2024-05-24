@@ -16,6 +16,7 @@ export class SNSAdapter implements ISNSAdapter {
   private adapterEndpoint: string;
   private baseSubscribeEndpoint: string;
   private accountId: string;
+  private lambdaVersion: string;
 
   constructor(
     localPort,
@@ -28,16 +29,24 @@ export class SNSAdapter implements ISNSAdapter {
     stage,
     accountId,
     host,
-    subscribeEndpoint
+    subscribeEndpoint,
+    subscribeVersion,
   ) {
     this.pluginDebug = debug;
     this.app = app;
     this.serviceName = serviceName;
     this.stage = stage;
     this.adapterEndpoint = `http://${host || "127.0.0.1"}:${localPort}`;
-    this.baseSubscribeEndpoint = subscribeEndpoint
-      ? `http://${subscribeEndpoint}:${remotePort}`
-      : this.adapterEndpoint;
+    this.lambdaVersion = subscribeVersion;
+
+    if (subscribeVersion) {
+      this.baseSubscribeEndpoint =
+        `${subscribeEndpoint}:${remotePort}/${subscribeVersion}/functions`
+    } else {
+      this.baseSubscribeEndpoint = subscribeEndpoint
+        ? `http://${subscribeEndpoint}:${remotePort}`
+        : this.adapterEndpoint;
+    }
     this.endpoint = snsEndpoint || `http://127.0.0.1:${localPort}`;
     this.debug("using endpoint: " + this.endpoint);
     this.accountId = accountId;
@@ -122,7 +131,7 @@ export class SNSAdapter implements ISNSAdapter {
 
   public async subscribe(fn, getHandler, arn, snsConfig) {
     arn = this.convertPseudoParams(arn);
-    const subscribeEndpoint = this.baseSubscribeEndpoint + "/" + fn.name;
+    const subscribeEndpoint = this.baseSubscribeEndpoint + "/" + fn.name + (this.lambdaVersion ? '/invocations' : '');
     this.debug("subscribe: " + fn.name + " " + arn);
     this.debug("subscribeEndpoint: " + subscribeEndpoint);
     this.app.post("/" + fn.name, (req, res) => {

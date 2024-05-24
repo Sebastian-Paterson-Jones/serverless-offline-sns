@@ -136,7 +136,8 @@ class ServerlessOfflineSns {
       (msg, ctx) => this.debug(msg, ctx),
       this.app,
       this.region,
-      this.accountId
+      this.accountId,
+      this.config,
     );
   }
   private getFunctionName(name) {
@@ -561,7 +562,8 @@ class ServerlessOfflineSns {
       this.serverless.service.provider.stage,
       this.accountId,
       this.config.host,
-      this.config["sns-subscribe-endpoint"]
+      this.config["sns-subscribe-endpoint"],
+      this.config["sns-subscribe-version"],
     );
   }
 }

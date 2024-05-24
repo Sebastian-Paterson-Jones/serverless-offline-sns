@@ -15,7 +15,7 @@ import {
   createMessageId,
   validatePhoneNumber,
   topicArnFromName,
-  formatMessageAttributes,
+  formatMessageAttributes, createSnsLambdaEvent,
 } from "./helpers.js";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 
@@ -28,8 +28,9 @@ export class SNSServer implements ISNSServer {
   private app: any;
   private region: string;
   private accountId: string;
+  private config: any;
 
-  constructor(debug, app, region, accountId) {
+  constructor(debug, app, region, accountId, config) {
     this.pluginDebug = debug;
     this.topics = [];
     this.subscriptions = [];
@@ -37,6 +38,7 @@ export class SNSServer implements ISNSServer {
     this.region = region;
     this.routes();
     this.accountId = accountId;
+    this.config = config;
   }
 
   public routes() {
@@ -360,6 +362,16 @@ export class SNSServer implements ISNSServer {
           let event;
           if (isRaw) {
             event = message;
+          } else if(this.config["sns-subscribe-endpoint"] && this.config["sns-subscribe-version"]) {
+            event = JSON.stringify(createSnsLambdaEvent(
+              topicArn,
+              sub.SubscriptionArn,
+              subject,
+              message,
+              messageId,
+              messageAttributes,
+              messageGroupId
+            ))
           } else {
             event = JSON.stringify(
               createSnsTopicEvent(
